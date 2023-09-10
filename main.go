@@ -13,7 +13,19 @@ import (
 
 func main() {
 	zerolog.SetGlobalLevel(zerolog.TraceLevel)
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
+
+	file, err := os.OpenFile(
+		"zerologtry.log",
+		os.O_APPEND|os.O_CREATE|os.O_WRONLY,
+		0664,
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	defer file.Close()
+	multi := zerolog.MultiLevelWriter(zerolog.ConsoleWriter{Out: os.Stdout}, file)
+	log.Logger = log.Output(multi)
 
 	if true {
 		log.Error().Msg("ERROR: Its true, so here the error!")
